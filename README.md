@@ -1,7 +1,7 @@
 # การติดตั้ง HA-NFS Cluster ด้วย DRBD บน RHEL 9
 จะเป็นอธิบายขั้นตอนการตั้งค่า High Availability NFS ระหว่างโหนด nfs01 และ nfs02 โดยใช้ DRBD ในการ Sync ข้อมูล และ Pacemaker ในการควบคุม Failover
 
-1. การเตรียมระบบ (ทำทั้ง 2 เครื่อง)
+## 1. การเตรียมระบบ (ทำทั้ง 2 เครื่อง)
 
 1.1. ตั้งค่า Hostname และ /etc/hosts
 ```bash
@@ -28,7 +28,7 @@ firewall-cmd --permanent --add-port=7788/tcp # DRBD
 firewall-cmd --reload
 ```
 
-2. ติดตั้งและตั้งค่า DRBD (ทำทั้ง 2 เครื่อง)
+## 2. ติดตั้งและตั้งค่า DRBD (ทำทั้ง 2 เครื่อง)
 
 2.1 ติดตั้ง Packages
 ```bash
@@ -81,7 +81,7 @@ drbdadm primary --force nfsdata
 mkfs.xfs /dev/drbd0
 ```
 
-3. ติดตั้ง Cluster Stack (ทำทั้ง 2 เครื่อง)
+## 3. ติดตั้ง Cluster Stack (ทำทั้ง 2 เครื่อง)
 ```bash
 subscription-manager repos --enable=rhel-9-for-x86_64-highavailability-rpms
 dnf install -y pacemaker pcs resource-agents
@@ -89,7 +89,7 @@ systemctl enable --now pcsd
 echo "Cluster@2024!" | passwd --stdin hacluster
 ```
 
-4. กำหนดค่า Cluster (ทำจาก nfs01)
+## 4. กำหนดค่า Cluster (ทำจาก nfs01)
 ```bash
 pcs host auth nfs01 nfs02 -u hacluster -p Cluster@2024!
 pcs cluster setup nfscluster nfs01 nfs02 --force
@@ -99,7 +99,7 @@ pcs property set stonith-enabled=false
 pcs property set no-quorum-policy=ignore
 ```
 
-5. การสร้าง Resource (Final Fix)
+## 5. การสร้าง Resource (Final Fix)
 
 5.1 ล้างสถานะ Error และสร้าง DRBD Promotable
 ```bash
@@ -128,7 +128,7 @@ pcs constraint colocation add g_nfs with promoted nfs_drbd-clone INFINITY
 pcs constraint order promote nfs_drbd-clone then start g_nfs
 ```
 
-6. การตรวจสอบสถานะที่ถูกต้อง ก่อนใช้งานจริง ตรวจสอบให้แน่ใจว่า:
+## 6. การตรวจสอบสถานะที่ถูกต้อง ก่อนใช้งานจริง ตรวจสอบให้แน่ใจว่า:
 - DRBD Sync เสร็จสิ้น: drbdadm status ต้องแสดง disk:UpToDate ทั้งสองฝั่ง และ replication:Established
 - สถานะ Resource: pcs status ต้องไม่มี Failed Actions (หากมีให้รัน pcs resource cleanup)
 - Mount Point: เครื่องที่เป็น Primary ต้องมองเห็น /mnt/nfs_share ผ่านคำสั่ง df -h
