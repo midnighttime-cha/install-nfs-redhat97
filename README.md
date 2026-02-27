@@ -32,8 +32,8 @@ firewall-cmd --reload
 
 2.1 ติดตั้ง Packages
 ```bash
-rpm --import [[](https://www.elrepo.org/RPM-GPG-KEY-elrepo.org)](https://www.elrepo.org/RPM-GPG-KEY-elrepo.org)
-dnf install -y [[](https://www.elrepo.org/elrepo-release-9.el9.elrepo.noarch.rpm)](https://www.elrepo.org/elrepo-release-9.el9.elrepo.noarch.rpm)
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+dnf install -y https://www.elrepo.org/elrepo-release-9.el9.elrepo.noarch.rpm
 dnf config-manager --set-enabled elrepo-extras
 dnf config-manager --set-enabled elrepo-kernel
 dnf install -y drbd9x-utils kmod-drbd9x
